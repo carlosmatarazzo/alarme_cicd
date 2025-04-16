@@ -2,8 +2,6 @@ name: Continuous Integration
 on:
   pull_request:
     types: [opened, reopened]
-
-    #branches: "feature/**"git
     branches:
       - main
 jobs:
@@ -19,5 +17,5 @@ jobs:
           with:
             distribution: 'temurin'
             java-version: '21'
-      #-   name: Unit tests
-          # run: mvn test
+      -   name: Unit tests
+          run: mvn test
