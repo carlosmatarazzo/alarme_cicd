@@ -6,8 +6,8 @@ on:
       - main
 
 env:
-  IMAGE_NAME: alarme_cicd
-  AZURE_WEBAPP_NAME: alarme-cicd
+  IMAGE_NAME: alarme_cicd # nome da imagem no DOcker Hub
+  AZURE_WEBAPP_NAME: alarme-cicd # nome do web app no Azure
 
 jobs:
   build:
@@ -43,5 +43,5 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_PROFILE }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} # AZURE_PROFILE
           images: 'ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest'
