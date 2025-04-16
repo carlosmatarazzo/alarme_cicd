@@ -27,10 +27,10 @@ public class UsuarioController {
 
     @GetMapping("/usuarios")
     @ResponseStatus(HttpStatus.OK)
-    //public List<UsuarioExibicaoDTO> listarTodos(){
-    public String listarTodos(){
-        //return usuarioService.listarTodos();
-        return "Deu certo";
+    public List<UsuarioExibicaoDTO> listarTodos(){
+    //public String listarTodos(){
+        return usuarioService.listarTodos();
+        //return "Deu certo";
     }
 
     @GetMapping("/usuarios/{usuarioId}")
