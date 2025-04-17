@@ -1,0 +1,64 @@
+name: CD - Homologacao
+
+on:
+  pull_request:
+    types: [closed] # Executa quando o PR para homologacao é merged
+    branches:
+      - homologacao
+
+env:
+  IMAGE_NAME_HOMOLOGACAO: alarme_cicd_homolog # Nome da imagem para homologacao no Docker Hub
+  AZURE_WEBAPP_NAME_HOMOLOGACAO: alarme-cicd-homlog # Nome do Web App de homologacao no Azure
+
+permissions:
+  pull-requests: write
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_HOMOLOGACAO }}:latest
+
+      - name: Deploy to Azure Web App Homologacao
+        id: deploy-to-webapp-homologacao
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME_HOMOLOGACAO }}
+          publish-profile: ${{ secrets.AZURE_PROFILE_HOMOLOG }} # Novo Secret para o Web App de Homologacao
+          images: 'ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME_HOMOLOGACAO }}:latest'
+
+      - name: Comment on Pull Request to Producao
+        uses: actions/github-script@v7
+        if: ${{ success() }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const pull_number = context.payload.pull_request.number
+
+            await github.rest.issues.createComment({
+              owner: owner,
+              repo: repo,
+              issue_number: pull_number,
+              body: 'Deploy para homologação realizado com sucesso. Pronto para ser revisado e mergeado em produção.'
+            })
