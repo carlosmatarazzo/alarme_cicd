@@ -92,4 +92,4 @@ URL: /api/usuarios/{id}
 Exemplo (retorno):
 ```
 ```
-Continua
+Continuar
